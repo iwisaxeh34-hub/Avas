@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Signal Pro • Elite Trading Signals</title>
+  
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #070203;
+      --surface: rgba(23, 11, 13, 0.65);
+      --surface-elevated: rgba(38, 18, 22, 0.9);
+      --border: rgba(239, 68, 68, 0.15);
+      --border-active: rgba(239, 68, 68, 0.6);
+      --text-primary: #fbf7f7;
+      --text-secondary: #9ca3af;
+      --accent: #dc2626;
+      --accent-gradient: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+      --success: #10b981;
+      --success-dim: rgba(16, 185, 129, 0.1);
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --shadow-card: 0 30px 60px -15px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(239, 68, 68, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(153, 27, 27, 0.08) 0%, transparent 45%);
+      position: relative;
+      line-height: 1.6;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: rgba(239, 68, 68, 0.15);
+      filter: blur(120px);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    /* Topbar Enhancements with TG Profile */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      background: rgba(15, 7, 9, 0.6);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tg-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s ease;
+    }
+
+    .tg-profile:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tg-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      border: 2px solid rgba(239, 68, 68, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+      overflow: hidden;
+      font-size: 1.1rem;
+    }
+
+    .tg-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .tg-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tg-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: white;
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tg-meta {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+
+    .status-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      margin-top: 2px;
+      display: inline-block;
+      width: fit-content;
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .live-badge {
+      background: var(--success-dim);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 0.4rem 0.8rem;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: 0.5px;
+      font-family: var(--font-mono);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--success);
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+    .card-body {
+      padding: 2.2rem 1.8rem;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+      color: white;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-title .highlight {
+      background: linear-gradient(135deg, #fee2e2 0%, #f87171 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      font-weight: 400;
+    }
+
+    /* Features UI */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2.2rem;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.01);
+      padding: 0.85rem 1.1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      transition: all 0.25s ease;
+    }
+
+    .feature:hover {
+      border-color: var(--border-active);
+      background: rgba(239, 68, 68, 0.04);
+      transform: translateX(4px);
+    }
+
+    .feature-icon {
+      background: rgba(239, 68, 68, 0.1);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+    }
+
+    .feature-text {
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #e5e7eb;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--accent-gradient);
+      border: none;
+      width: 100%;
+      padding: 1.1rem;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.3);
+      letter-spacing: 0.3px;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(239, 68, 68, 0.5);
+      filter: brightness(1.1);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Overlays & Popups */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 2, 3, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1.5rem;
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .popup {
+      background: #160a0c;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
+      animation: popUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popUp {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.3rem 1.6rem;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .close-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: none;
+      color: var(--text-secondary);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: white;
+    }
+
+    .popup-body {
+      padding: 1.6rem;
+    }
+
+    .plan-option {
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .plan-option:hover {
+      background: rgba(239, 68, 68, 0.03);
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+
+    .plan-option.active {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .radio-custom {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #52272c;
+      border-radius: 50%;
+      margin-right: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .plan-option.active .radio-custom {
+      border-color: #ef4444;
+      background: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+
+    .plan-option.active .radio-custom::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .flex-1 { flex: 1; }
+    .text-right { text-align: right; }
+    .font-mono { font-family: var(--font-mono); }
+    .text-sm { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.1rem; }
+    .price { font-weight: 800; font-size: 1.3rem; color: white; }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 0.9rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .btn-outline:hover {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: #ef4444;
+    }
+
+    .hidden { display: none; }
+    .mt-3 { margin-top: 1.25rem; }
+    
+    .address-box {
+      background: #0d0406;
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      word-break: break-all;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      color: #cbd5e1;
+      margin-top: 0.5rem;
+    }
+
+    .agent-box {
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    .telegram-btn {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: #0088cc;
+      box-shadow: 0 10px 20px -5px rgba(0, 136, 204, 0.4);
+      text-decoration: none;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      margin: 1.2rem 0;
+      border: 2px dashed rgba(239, 68, 68, 0.2);
+      padding: 1.5rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+    <div class="topbar">
+      <div class="tg-profile" id="tgProfileBtn">
+        <div class="tg-avatar" id="userAvatar">U</div>
+        <div class="tg-info">
+          <span class="tg-name" id="userName">Loading User...</span>
+          <span class="tg-meta" id="userId">ID: --------</span>
+          <span class="status-badge" id="subStatus">Subscription: Inactive</span>
+        </div>
+      </div>
+      <div class="live-badge"><span class="live-dot"></span> LIVE</div>
+    </div>
+    
+    <div class="card-body">
+      <div class="hero-title">
+         <span class="highlight">Aviator Pro Signals</span>
+      </div>
+      <div class="subtitle">Real-time market intelligence & expert alpha analytics.</div>
+
+      <div class="feature-list">
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-text">Instant AI Driven Alerts</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📊</div>
+          <div class="feature-text">High-Accuracy Prediction Matrix</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="openPlansBtn">
+        <span>GET SIGNAL ACCESS</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="planOverlay">
+  <div class="popup">
+    <div class="popup-header">
+      <span>Select Subscription Plan</span>
+      <button class="close-btn" id="closePlan">✕</button>
+    </div>
+    <div class="popup-body">
+      <div id="planContainer">
+        <div class="plan-option" data-plan="3 Day" data-price="15">
+          <div class="radio-custom"></div>
+          <div class="flex-1"><strong>3 Day Access</strong><div class="text-sm">Starter Validation Tier</div></div>
+          <div class="text-right"><span class="price">$15</span></div>
+        </div>
+        <div class="plan-option" data-plan="7 Day" data-price="30">
+          <div class="radio-custom"></div>
+          <div class="flex-1"><strong>7 Day Access</strong><div class="text-sm">Weekly Momentum Tier</div></div>
+          <div class="text-right"><span class="price">$30</span></div>
+        </div>
+        <div class="plan-option" data-plan="1 Month" data-price="100">
+          <div class="radio-custom"></div>
+          <div class="flex-1"><strong>1 Month Access</strong><div class="text-sm">Premium Elite Alpha Pack</div></div>
+          <div class="text-right"><span class="price">$100</span></div>
+        </div>
+      </div>
+      <button class="btn-primary mt-3" id="continueToPayment" disabled>CONTINUE TO PAYMENT →</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="paymentOverlay">
+  <div class="popup">
+    <div class="popup-header"><span>Select Payment Method</span><button class="close-btn" id="closePayment">✕</button></div>
+    <div class="popup-body">
+      <div id="selectedPlanSummary" class="text-sm" style="margin-bottom:1.25rem; background: rgba(255,255,255,0.02); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border)"></div>
+      
+      <div class="plan-option" data-method="usdt">
+        <div class="radio-custom"></div>
+        <div><strong>Pay with USDT</strong><div class="text-sm">BEP-20 · Binance Smart Chain</div></div>
+      </div>
+      
+      <div class="plan-option" data-method="agent">
+        <div class="radio-custom"></div>
+        <div><strong>Pay via Live Support Agent</strong><div class="text-sm">Manual Wallet/Local Transfer Contact</div></div>
+      </div>
+      
+      <div id="usdtDetails" class="hidden mt-3">
+        <div class="text-sm">Send exact USDT amount to:</div>
+        <div class="address-box">0x59760DFC935d0212502654A1171bb41A16cC02Ee</div>
+        <button class="btn-outline mt-3" id="copyAddress">📋 Copy Wallet Address</button>
+      </div>
+      
+      <button class="btn-primary mt-3" id="goToProof">PROCEED NEXT →</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="proofOverlay">
+  <div class="popup">
+    <div class="popup-header"><span>Verification Details</span><button class="close-btn" id="closeProof">✕</button></div>
+    <div class="popup-body" id="proofContent">
+      </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // Initialize Telegram Web App API
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.expand(); // Full screen inside telegram
+      tg.ready();
+      
+      // Fetch User Details from Telegram
+      const user = tg.initDataUnsafe?.user;
+      if (user) {
+        document.getElementById('userName').textContent = `${user.first_name} ${user.last_name || ''}`.trim();
+        document.getElementById('userId').textContent = `ID: ${user.id}`;
+        
+        if (user.photo_url) {
+          document.getElementById('userAvatar').innerHTML = `<img src="${user.photo_url}" alt="Avatar">`;
+        } else {
+          document.getElementById('userAvatar').textContent = user.first_name.charAt(0).toUpperCase();
+        }
+      } else {
+        // Fallback for desktop testing browsers
+        document.getElementById('userName').textContent = "Demo Account";
+        document.getElementById('userId').textContent = "ID: 598024153";
+      }
+    } else {
+      // Local Browser Fallback
+      document.getElementById('userName').textContent = "Guest User";
+      document.getElementById('userId').textContent = "ID: 000000000";
+    }
+
+    const planOverlay = document.getElementById('planOverlay');
+    const paymentOverlay = document.getElementById('paymentOverlay');
+    const proofOverlay = document.getElementById('proofOverlay');
+
+    let state = { plan: null, price: null, method: null };
+
+    function openOverlay(overlay) { overlay.classList.add('active'); }
+    function closeOverlay(overlay) { overlay.classList.remove('active'); }
+
+    document.getElementById('openPlansBtn').addEventListener('click', () => openOverlay(planOverlay));
+    document.getElementById('closePlan').addEventListener('click', () => closeOverlay(planOverlay));
+
+    const planOptions = document.querySelectorAll('#planContainer .plan-option');
+    const continueBtn = document.getElementById('continueToPayment');
+
+    planOptions.forEach(opt => {
+      opt.addEventListener('click', function() {
+        planOptions.forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        state.plan = this.dataset.plan;
+        state.price = this.dataset.price;
+        continueBtn.disabled = false;
+      });
+    });
+
+    continueBtn.addEventListener('click', () => {
+      if (!state.plan) return;
+      document.getElementById('selectedPlanSummary').innerHTML = `Selected Plan: <span style="color:white; font-weight:700;">${state.plan} Access</span> · <span style="color:#f87171; font-weight:700;">$${state.price}</span>`;
+      closeOverlay(planOverlay);
+      openOverlay(paymentOverlay);
+      document.querySelectorAll('#paymentOverlay .plan-option').forEach(m => m.classList.remove('active'));
+      document.getElementById('usdtDetails').classList.add('hidden');
+      state.method = null;
+    });
+
+    document.getElementById('closePayment').addEventListener('click', () => closeOverlay(paymentOverlay));
+
+    const methodOptions = document.querySelectorAll('#paymentOverlay .plan-option');
+    methodOptions.forEach(m => {
+      m.addEventListener('click', function() {
+        methodOptions.forEach(el => el.classList.remove('active'));
+        this.classList.add('active');
+        state.method = this.dataset.method;
+        const usdtBox = document.getElementById('usdtDetails');
+        if (state.method === 'usdt') {
+          usdtBox.classList.remove('hidden');
+        } else {
+          usdtBox.classList.add('hidden');
+        }
+      });
+    });
+
+    document.getElementById('copyAddress')?.addEventListener('click', () => {
+      navigator.clipboard.writeText('0x59760DFC935d0212502654A1171bb41A16cC02Ee');
+      if (tg) tg.showAlert('Wallet address copied successfully!');
+      else alert('Wallet address copied successfully!');
+    });
+
+    document.getElementById('goToProof').addEventListener('click', () => {
+      if (!state.method) return alert('Please select a payment method to proceed.');
+      closeOverlay(paymentOverlay);
+      openOverlay(proofOverlay);
+      renderProofContent();
+    });
+
+    document.getElementById('closeProof').addEventListener('click', () => closeOverlay(proofOverlay));
+
+    function renderProofContent() {
+      const container = document.getElementById('proofContent');
+      if (state.method === 'agent') {
+        container.innerHTML = `
+          <div class="agent-box">
+            <div style="font-size:2.5rem; margin-bottom:0.5rem;">👑</div>
+            <h3 style="margin-bottom:0.25rem;">Connect with Verified Agent</h3>
+            <p class="text-sm" style="margin-bottom:1.25rem;">Contact official support node on Telegram to clear your purchase instantly.</p>
+            <div style="margin:1rem 0; background:rgba(255,255,255,0.02); padding:0.75rem; border-radius:12px; border:1px solid var(--border)">
+              Plan: <strong>${state.plan} Access</strong> · <span style="color:#f87171; font-weight:700;">$${state.price}</span>
+            </div>
+            <a href="https://t.me/sigmabot5" target="_blank" class="btn-primary telegram-btn">
+              <span>💬 Open Direct Chat</span>
+            </a>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div style="text-align:center;">
+            <div style="font-size:2.5rem; margin-bottom:0.5rem;">✨</div>
+            <h3 style="margin-bottom:0.25rem;">Upload Gateway Receipt</h3>
+            <p class="text-sm">Submit your successful confirmation receipt file for ledger check.</p>
+            
+            <div class="file-input-wrapper">
+              <span style="color: #f87171; font-weight:600; font-size:0.9rem;">📂 Select TX Hash Screenshot</span>
+              <input type="file" id="fakeUpload" accept="image/*"/>
+            </div>
+
+            <button class="btn-primary" id="simulateSubmit">SUBMIT TRANSATION PROOF</button>
+            <div id="fakeResult" class="hidden mt-3" style="color:#f59e0b; font-size:0.85rem; background:rgba(245,158,11,0.03); padding:0.75rem; border-radius:10px; border:1px solid rgba(245,158,11,0.15)">
+              ⏳ Automated validation pending. Ping <a href="https://t.me/sigmabot5" target="_blank" style="color:white; text-decoration:underline;">@sigmabot5</a> with your Transaction ID for immediate priority processing.
+            </div>
+          </div>
+        `;
+        setTimeout(() => {
+          document.getElementById('simulateSubmit')?.addEventListener('click', () => {
+            document.getElementById('fakeResult').classList.remove('hidden');
+          });
+        }, 0);
+      }
+    }
+
+    window.addEventListener('click', (e) => {
+      if (e.target === planOverlay) closeOverlay(planOverlay);
+      if (e.target === paymentOverlay) closeOverlay(paymentOverlay);
+      if (e.target === proofOverlay) closeOverlay(proofOverlay);
+    });
+  })();
+</script>
+</body>
+</html>
